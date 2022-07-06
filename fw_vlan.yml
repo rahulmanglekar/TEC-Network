@@ -1,0 +1,60 @@
+- name: Add vlan
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  collections:
+    - paloaltonetworks.panos
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  # delete vlan
+  - name: Delete VLAN
+    panos_vlan:
+      provider: 
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+      name: 'Internal'
+      virtual_interface: 'vlan.2'
+      state: "absent"
+    ignore_errors: yes
+
+  # delete vlan.2 as DHCP
+  - name: enable DHCP client on ethernet1/1 in zone public
+    panos_vlan_interface:
+      provider: 
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+      name: "vlan.2"
+      zone_name: "public"
+      enable_dhcp: true
+      state: "absent"
+    ignore_errors: yes
+
+  # Create vlan.2 as DHCP
+  - name: enable DHCP client on ethernet1/1 in zone public
+    panos_vlan_interface:
+      provider: 
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+      name: "vlan.2"
+      zone_name: "public"
+      enable_dhcp: true
+
+
+  - name: Create VLAN
+    panos_vlan:
+      provider: 
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+      name: 'Internal'
+      virtual_interface: 'vlan.2'
